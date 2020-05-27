@@ -220,3 +220,8 @@
   (let [rows (Integer. (get-input 5))
         board (new-board rows)]
     (prompt-empty-peg board)))
+
+(defn -main
+  [& args]
+  (println "Get ready to play!")
+  (prompt-rows))
