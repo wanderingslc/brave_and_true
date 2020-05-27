@@ -11,6 +11,8 @@
    (let [new-sum (+ sum n)]
      (cons new-sum (lazy-seq (tri* new-sum (inc n)))))))
 
+(def tri (tri*))
+
 (defn triangular?
   "Check if the number is triangular"
   [n]
@@ -121,6 +123,27 @@
   (some (comp not-empty (partial valid-moves board))
         (map first (filter #(get (second %) :pegged) board))))
 
+(def alpha-start 97)
+(def alpha-end 123)
+(def letters (map (comp str char) (range alpha-start alpha-end)))
+(def pos-chars 3)
+(def ansi-styles
+  {:red   "[31m"
+   :green "[32m"
+   :blue  "[34m"
+   :reset "[0m"})
+
+
+(defn ansi
+  "Produce a string which will apply an ansi style"
+  [style]
+  (str \u001b (style ansi-styles)))
+
+(defn colorize
+  "Apply ansi color to text"
+  [text color]
+  (str (ansi color) text (ansi :reset)))
+
 (defn render-pos
   [board pos]
   (str (nth letters (dec pos))
@@ -160,7 +183,7 @@
   "Waits for user to enter text and hit enter, then cleans the input"
   ([] (get-input nil))
   ([default]
-   (let [input (clojure/string.trim (read-line))]
+   (let [input (clojure.string/trim (read-line))]
      (if (empty? input )
        default
        (clojure.string/lower-case input)))))
@@ -170,15 +193,37 @@
   [string]
   (re-seq #"[a-zA-Z]" string))
 
+
+
+;(defn prompt-move
+;  [board]
+;  (println "\nHere's your board:")
+;  (print-board board)
+;  (println "Move from where to where? Enter two letters: ")
+;  (let [input (map letter->pos (characters-as-strings (get-input)))]
+;    (if-let [new-board (make-move board (first input) (second input))]
+;      (user-entered-valid-move new-board)
+;      (user-entered-invalid-move board))))
+
+
+
 (defn prompt-move
   [board]
   (println "\nHere's your board:")
   (print-board board)
-  (println "Move from where to where? Enter two letters: ")
+  (println "Move from where to where? Enter two letters:")
   (let [input (map letter->pos (characters-as-strings (get-input)))]
     (if-let [new-board (make-move board (first input) (second input))]
-      (user-entered-valid-move new-board)
-      (user-entered-invalid-move board))))
+      (successful-move new-board)
+      (do
+        (println "\n!!! That was an invalid move :(\n")
+        (prompt-move board)))))
+
+(defn successful-move
+  [board]
+  (if (can-move? board)
+    (prompt-move board)
+    (game-over board)))
 
 (defn user-entered-invalid-move
   "Handles the next step after a user has entered an invalid move"
