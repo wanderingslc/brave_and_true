@@ -159,7 +159,7 @@
 
 (defn row-padding
   "String of spaces to add to the beginning or a row to center it"
-  [row-nums rows]
+  [row-num rows]
   (let [pad-length (/ (* (- rows row-num) pos-chars) 2)]
     (apply str (take pad-length (repeat " ")))))
 
@@ -194,30 +194,20 @@
   (re-seq #"[a-zA-Z]" string))
 
 
-
-;(defn prompt-move
-;  [board]
-;  (println "\nHere's your board:")
-;  (print-board board)
-;  (println "Move from where to where? Enter two letters: ")
-;  (let [input (map letter->pos (characters-as-strings (get-input)))]
-;    (if-let [new-board (make-move board (first input) (second input))]
-;      (user-entered-valid-move new-board)
-;      (user-entered-invalid-move board))))
-
-
-
+(declare user-entered-valid-move)
+(declare user-entered-invalid-move)
+(declare prompt-rows)
+(declare game-over)
 (defn prompt-move
   [board]
   (println "\nHere's your board:")
   (print-board board)
-  (println "Move from where to where? Enter two letters:")
+  (println "Move from where to where? Enter two letters: ")
   (let [input (map letter->pos (characters-as-strings (get-input)))]
     (if-let [new-board (make-move board (first input) (second input))]
-      (successful-move new-board)
-      (do
-        (println "\n!!! That was an invalid move :(\n")
-        (prompt-move board)))))
+      (user-entered-valid-move new-board)
+      (user-entered-invalid-move board))))
+
 
 (defn successful-move
   [board]
